@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vibe Coding — 빠르게, 즐겁게, 더 멀리</title>
+  <meta name="description" content="바이브 코딩(Vibe Coding)을 소개하는 현대적 랜딩페이지. 감각적인 흐름과 집중을 위한 코딩 방식." />
+  <style>
+    :root{
+      --bg: #0b0f19;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --line: rgba(255,255,255,.12);
+      --shadow: 0 16px 60px rgba(0,0,0,.45);
+      --r: 18px;
+      --max: 1120px;
+      --grad: linear-gradient(135deg, #7c3aed, #22d3ee 55%, #a3e635);
+      --grad2: radial-gradient(900px 420px at 20% 10%, rgba(124,58,237,.28), transparent 60%),
+               radial-gradient(700px 420px at 90% 20%, rgba(34,211,238,.22), transparent 65%),
+               radial-gradient(700px 520px at 60% 90%, rgba(163,230,53,.16), transparent 65%);
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--grad2);
+      overflow-x:hidden;
+    }
+
+    /* Subtle animated noise overlay */
+    .noise{
+      pointer-events:none;
+      position:fixed; inset:0;
+      opacity:.06;
+      mix-blend-mode: overlay;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+      animation: drift 14s linear infinite;
+    }
+    @keyframes drift { from{ transform:translate3d(0,0,0)} to{ transform:translate3d(-60px,40px,0)} }
+
+    a{ color:inherit; text-decoration:none; }
+    button{ font-family:inherit; }
+
+    /* Layout */
+    .wrap{ max-width:var(--max); margin:0 auto; padding: 0 20px; }
+    header{
+      position:sticky; top:0;
+      z-index:50;
+      backdrop-filter: blur(14px);
+      background: rgba(11,15,25,.55);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      height: 64px;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      font-weight: 700; letter-spacing:-.2px;
+    }
+    .logo{
+      width:34px; height:34px; border-radius: 12px;
+      background: var(--grad);
+      box-shadow: 0 12px 30px rgba(124,58,237,.25);
+      position:relative;
+    }
+    .logo::after{
+      content:""; position:absolute; inset:8px;
+      border-radius:10px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .navlinks{
+      display:flex; gap:18px; align-items:center;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .navlinks a{
+      padding:8px 10px; border-radius: 12px;
+      transition: background .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+    }
+    .navlinks a:hover{
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .actions{
+      display:flex; gap:10px; align-items:center;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor:pointer;
+      transition: transform .2s var(--ease), background .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.22);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+    .btn.primary{
+      border: none;
+      background: var(--grad);
+      color: rgba(10,12,18,.92);
+      box-shadow: 0 18px 40px rgba(124,58,237,.22);
+    }
+    .btn.primary:hover{ box-shadow: 0 22px 50px rgba(124,58,237,.26); }
+
+    /* Mobile menu */
+    .hamburger{ display:none; }
+    .sheet{
+      display:none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.42);
+      z-index:100;
+    }
+    .sheet .panel{
+      position:absolute; right:16px; top:72px; left:16px;
+      border: 1px solid var(--line);
+      background: rgba(18,22,33,.92);
+      backdrop-filter: blur(16px);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .sheet nav{
+      display:flex; flex-direction:column;
+      padding: 12px;
+      gap: 6px;
+    }
+    .sheet a{
+      padding: 12px 12px;
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: 700;
+    }
+    .sheet a:active{ transform: translateY(1px); }
+
+    /* Hero */
+    .hero{
+      padding: 70px 0 38px;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .pill .dot{
+      width: 8px; height: 8px; border-radius: 99px;
+      background: var(--grad);
+      box-shadow: 0 0 0 4px rgba(124,58,237,.16);
+    }
+
+    h1{
+      margin: 16px 0 10px;
+      font-size: clamp(34px, 4.3vw, 56px);
+      line-height: 1.02;
+      letter-spacing: -1.2px;
+    }
+    .gradText{
+      background: var(--grad);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+    .lead{
+      margin: 0;
+      font-size: clamp(15px, 1.6vw, 18px);
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 58ch;
+    }
+
+    .heroCtas{
+      margin-top: 18px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      align-items:center;
+    }
+    .subnote{
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,.55);
+    }
+    .subnote code{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.78);
+    }
+
+    /* Card / sections */
+    section{ padding: 44px 0; }
+    .sectionTitle{
+      display:flex; align-items:flex-end; justify-content:space-between; gap: 16px;
+      margin-bottom: 16px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size: clamp(22px, 2.2vw, 28px);
+      letter-spacing: -.6px;
+    }
+    .sectionTitle p{
+      margin:0;
+      color: var(--muted);
+      max-width: 60ch;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--r);
+      box-shadow: 0 14px 60px rgba(0,0,0,.25);
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .feature{
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .feature::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(500px 180px at 20% 0%, rgba(124,58,237,.20), transparent 55%),
+                  radial-gradient(400px 160px at 80% 30%, rgba(34,211,238,.16), transparent 55%);
+      opacity:.85;
+      pointer-events:none;
+    }
+    .feature > *{ position:relative; }
+    .icon{
+      width: 42px; height: 42px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      display:grid; place-items:center;
+      margin-bottom: 10px;
+    }
+    .feature h3{
+      margin: 0 0 6px;
+      font-size: 16px;
+      letter-spacing:-.3px;
+    }
+    .feature p{
+      margin:0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+    .pad{ padding: 18px; }
+    .bullets{
+      display:grid;
+      gap: 10px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style:none;
+    }
+    .bullets li{
+      display:flex; gap: 10px; align-items:flex-start;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+    .check{
+      width: 18px; height: 18px;
+      border-radius: 6px;
+      background: rgba(34,211,238,.16);
+      border: 1px solid rgba(34,211,238,.35);
+      display:grid; place-items:center;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    /* Code demo */
+    .code{
+      padding: 16px;
+      background: rgba(10,12,18,.55);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      overflow:hidden;
+    }
+    pre{
+      margin:0;
+      overflow:auto;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: rgba(255,255,255,.84);
+    }
+    .codeTop{
+      display:flex; justify-content:space-between; align-items:center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 4px 8px;
+      border-radius: 10px;
+      white-space:nowrap;
+    }
+    .copy{
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 12px;
+    }
+
+    /* CTA */
+    .cta{
+      padding: 22px;
+      position:relative;
+      overflow:hidden;
+    }
+    .cta::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(700px 260px at 20% 0%, rgba(124,58,237,.28), transparent 60%),
+                  radial-gradient(700px 260px at 85% 40%, rgba(34,211,238,.24), transparent 60%),
+                  radial-gradient(700px 260px at 50% 100%, rgba(163,230,53,.14), transparent 60%);
+      opacity:1;
+      pointer-events:none;
+    }
+    .cta > *{ position:relative; }
+    .ctaRow{
+      display:flex; justify-content:space-between; align-items:center;
+      gap: 14px; flex-wrap:wrap;
+    }
+    .cta h3{ margin:0; font-size: 18px; letter-spacing:-.3px;}
+    .cta p{ margin: 6px 0 0; color: var(--muted); font-weight: 650; max-width: 62ch; line-height:1.6; }
+
+    /* Footer */
+    footer{
+      padding: 30px 0 44px;
+      color: rgba(255,255,255,.55);
+      border-top: 1px solid var(--line);
+      margin-top: 36px;
+    }
+    .footRow{
+      display:flex; justify-content:space-between; gap: 14px; align-items:center;
+      flex-wrap:wrap;
+    }
+    .miniLinks{ display:flex; gap: 14px; flex-wrap:wrap; }
+    .miniLinks a{
+      color: rgba(255,255,255,.62);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .miniLinks a:hover{ color: rgba(255,255,255,.9); }
+
+    /* Reveal animation */
+    .reveal{
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .8s var(--ease), transform .8s var(--ease);
+    }
+    .reveal.in{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 920px){
+      .heroGrid{ grid-template-columns: 1fr; }
+      .grid3{ grid-template-columns: 1fr; }
+      .split{ grid-template-columns: 1fr; }
+      .navlinks{ display:none; }
+      .hamburger{ display:inline-flex; }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="#top" aria-label="Vibe Coding 홈">
+          <span class="logo" aria-hidden="true"></span>
+          <span>Vibe Coding</span>
+        </a>
+
+        <nav class="navlinks" aria-label="주요 메뉴">
+          <a href="#what">소개</a>
+          <a href="#how">방법</a>
+          <a href="#demo">데모</a>
+          <a href="#start">시작하기</a>
+        </nav>
+
+        <div class="actions">
+          <button class="btn hamburger" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+          <a class="btn" href="#demo">샘플 보기</a>
+          <a class="btn primary" href="#start">지금 시작</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile sheet -->
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="panel">
+      <nav aria-label="모바일 메뉴">
+        <a href="#what" class="sheetLink">소개</a>
+        <a href="#how" class="sheetLink">방법</a>
+        <a href="#demo" class="sheetLink">데모</a>
+        <a href="#start" class="sheetLink">시작하기</a>
+      </nav>
+    </div>
+  </div>
+
+  <main id="top" class="wrap">
+    <section class="hero">
+      <div class="heroGrid">
+        <div class="reveal">
+          <span class="pill"><span class="dot" aria-hidden="true"></span>감각(Flow) 중심의 코딩 방식</span>
+          <h1>
+            아이디어를 <span class="gradText">흐름</span>으로 연결해<br/>
+            더 빠르게 만들어내는<br/>
+            <span class="gradText">바이브 코딩</span>
+          </h1>
+          <p class="lead">
+            바이브 코딩은 “완벽한 계획”보다 “몰입한 실행”을 우선합니다.
+            작은 단위로 만들고, 바로 확인하고, 감각적으로 개선하는 루프로
+            제품과 학습의 속도를 끌어올립니다.
+          </p>
+
+          <div class="heroCtas">
+            <a class="btn primary" href="#start">워크플로우 받기</a>
+            <button class="btn" id="scrollBtn">부드럽게 둘러보기</button>
+          </div>
+          <div class="subnote">
+            키워드: <code>작게 만들기</code> <code>즉시 피드백</code> <code>연속 개선</code> <code>몰입</code>
+          </div>
+        </div>
+
+        <div class="card pad reveal" style="position:relative; overflow:hidden;">
+          <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+            <div>
+              <div style="font-weight:800; letter-spacing:-.3px; font-size:16px;">오늘의 바이브</div>
+              <div style="color:var(--muted); font-weight:650; font-size:13px; margin-top:6px; line-height:1.55;">
+                “기획서를 다 쓰고 시작” 대신,<br/>“만들면서 기획이 정리되는” 감각.
+              </div>
+            </div>
+            <span class="kbd" title="단축키 힌트">⌘ / Ctrl + K</span>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="code">
+            <div class="codeTop">
+              <div class="kbd">micro-loop.js</div>
+              <button class="btn copy" id="copyBtn">코드 복사</button>
+            </div>
+<pre id="codeBlock">const loop = async () =&gt; {
+  buildSmall();
+  const feedback = await testNow();
+  refine(feedback);
+  shipIfGoodEnough();
+};</pre>
+            <div style="height:10px"></div>
+            <div style="color:rgba(255,255,255,.58); font-size:13px; font-weight:650; line-height:1.6;">
+              핵심은 <span style="color:rgba(255,255,255,.86); font-weight:800;">작은 루프</span>.
+              루프가 짧을수록 ‘감각’이 유지됩니다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="what">
+      <div class="sectionTitle reveal">
+        <div>
+          <h2>바이브 코딩이란?</h2>
+          <p>몰입을 유지하기 위해 “작게 만들고 빠르게 확인”하는 습관을 설계하는 방식입니다.</p>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div class="card feature reveal">
+          <div class="icon" aria-hidden="true">⚡</div>
+          <h3>속도: 작은 단위로 전진</h3>
+          <p>큰 설계보다 작은 결과물을 먼저 만들고, 다음 선택을 더 정확하게 합니다.</p>
+        </div>
+        <div class="card feature reveal">
+          <div class="icon" aria-hidden="true">🎯</div>
+          <h3>집중: 몰입을 방해하지 않기</h3>
+          <p>완벽주의 대신 “지금 필요한 만큼”을 정의해서 흐름을 끊지 않습니다.</p>
+        </div>
+        <div class="card feature reveal">
+          <div class="icon" aria-hidden="true">🧪</div>
+          <h3>검증: 바로 테스트하고 수정</h3>
+          <p>가설을 빨리 확인하고, 피드백 기반으로 방향을 가볍게 바꿉니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="sectionTitle reveal">
+        <div>
+          <h2>바이브 코딩 4단계 루프</h2>
+          <p>“작게 → 확인 → 개선 → 공유”를 반복하면, 진짜로 빨라집니다.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card pad reveal">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="icon" aria-hidden="true">1</div>
+            <div style="font-weight:850; letter-spacing:-.3px;">작게 만든다 (Build small)</div>
+          </div>
+          <ul class="bullets">
+            <li><span class="check" aria-hidden="true">✓</span> 화면 1개, 기능 1개처럼 “한 입 크기”로 쪼갭니다.</li>
+            <li><span class="check" aria-hidden="true">✓</span> 완성 기준을 낮춰서 시작 장벽을 없앱니다.</li>
+          </ul>
+        </div>
+
+        <div class="card pad reveal">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="icon" aria-hidden="true">2</div>
+            <div style="font-weight:850; letter-spacing:-.3px;">즉시 확인한다 (Test now)</div>
+          </div>
+          <ul class="bullets">
+            <li><span class="check" aria-hidden="true">✓</span> 실행/미리보기/사용자 반응으로 빠르게 판단합니다.</li>
+            <li><span class="check" aria-hidden="true">✓</span> “맞나?”를 빨리 끝내면 다음이 쉬워집니다.</li>
+          </ul>
+        </div>
+
+        <div class="card pad reveal">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="icon" aria-hidden="true">3</div>
+            <div style="font-weight:850; letter-spacing:-.3px;">감각적으로 개선 (Refine)</div>
+          </div>
+          <ul class="bullets">
+            <li><span class="check" aria-hidden="true">✓</span> 디자인/코드/문장 모두 “조금 더 매끈하게” 다듬습니다.</li>
+            <li><span class="check" aria-hidden="true">✓</span> 과도한 리팩터링보다 효과 큰 수정부터 합니다.</li>
+          </ul>
+        </div>
+
+        <div class="card pad reveal">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="icon" aria-hidden="true">4</div>
+            <div style="font-weight:850; letter-spacing:-.3px;">공유하고 반복 (Share)</div>
+          </div>
+          <ul class="bullets">
+            <li><span class="check" aria-hidden="true">✓</span> 작은 배포/데모로 피드백 루프를 만듭니다.</li>
+            <li><span class="check" aria-hidden="true">✓</span> 루프가 짧을수록 성장은 가속됩니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="sectionTitle reveal">
+        <div>
+          <h2>미니 데모: 30초 루프</h2>
+          <p>버튼을 눌러 “작게 만들기 → 확인 → 개선”의 흐름을 체감해보세요.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card pad reveal">
+          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:900; letter-spacing:-.3px;">Vibe Loop Simulator</div>
+              <div style="color:var(--muted); font-weight:650; font-size:13px; margin-top:6px;">
+                단계가 쌓일수록 ‘완성도’가 올라갑니다.
+              </div>
+            </div>
+            <button class="btn primary" id="runLoop">루프 실행</button>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <div class="card" style="padding:14px; background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10);">
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+              <div style="color:rgba(255,255,255,.78); font-weight:800;">진행 상태</div>
+              <div class="kbd" id="status">대기 중</div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div style="width:100%; height:10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); border-radius:999px; overflow:hidden;">
+              <div id="bar" style="height:100%; width:0%; background: var(--grad); border-radius:999px; transition: width .6s var(--ease);"></div>
+            </div>
+
+            <div style="height:10px"></div>
+            <div id="log" style="font-family:var(--mono); font-size:12.5px; color:rgba(255,255,255,.75); line-height:1.7; white-space:pre-wrap;"></div>
+          </div>
+        </div>
+
+        <div class="card cta reveal" id="start">
+          <div class="ctaRow">
+            <div>
+              <h3>지금, 가장 작은 것부터 시작해볼까요?</h3>
+              <p>
+                오늘 만들 “가장 작은 결과물”을 1줄로 적고, 10분만 투자해 첫 루프를 돌려보세요.
+                완벽함은 두 번째 루프에서 따라옵니다.
+              </p>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" id="promptBtn">10분 프롬프트</button>
+              <a class="btn primary" href="#top">위로</a>
+            </div>
+          </div>
+
+          <div style="height:14px"></div>
+
+          <div class="card" style="padding:14px; background: rgba(10,12,18,.45); border-color: rgba(255,255,255,.10);">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:900; letter-spacing:-.3px;">10분 바이브 프롬프트</div>
+                <div style="color:var(--muted); font-weight:650; font-size:13px; margin-top:6px;">
+                  아래 문장을 복사해서 그대로 사용하세요.
+                </div>
+              </div>
+              <button class="btn copy" id="copyPrompt">복사</button>
+            </div>
+            <div style="height:10px"></div>
+<pre id="promptText">1) 내가 만들고 싶은 가장 작은 결과물은: (예: 버튼 1개가 작동하는 화면)
+2) 성공 기준은: (예: 클릭하면 토스트가 뜬다)
+3) 지금 당장 할 일 3개:
+   - UI 뼈대 만들기
+   - 동작 붙이기
+   - 1명에게 보여주고 피드백 받기</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap footRow">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span class="logo" aria-hidden="true" style="width:26px;height:26px;border-radius:10px;"></span>
+          <div style="font-weight:900; color:rgba(255,255,255,.78);">Vibe Coding</div>
+          <div style="color:rgba(255,255,255,.50); font-weight:700; font-size:13px;">© <span id="year"></span></div>
+        </div>
+
+        <div class="miniLinks" aria-label="푸터 링크">
+          <a href="#what">소개</a>
+          <a href="#how">방법</a>
+          <a href="#demo">데모</a>
+          <a href="#start">시작하기</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // ---- Utilities
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
+
+    // ---- Mobile menu
+    const menuBtn = $("#menuBtn");
+    const sheet = $("#sheet");
+    const openSheet = () => {
+      sheet.style.display = "block";
+      sheet.setAttribute("aria-hidden","false");
+      menuBtn.setAttribute("aria-expanded","true");
+      document.body.style.overflow = "hidden";
+    };
+    const closeSheet = () => {
+      sheet.style.display = "none";
+      sheet.setAttribute("aria-hidden","true");
+      menuBtn.setAttribute("aria-expanded","false");
+      document.body.style.overflow = "";
+    };
+
+    menuBtn?.addEventListener("click", () => {
+      const isOpen = sheet.getAttribute("aria-hidden") === "false";
+      isOpen ? closeSheet() : openSheet();
+    });
+    sheet?.addEventListener("click", (e) => {
+      if (e.target === sheet) closeSheet();
+    });
+    $$(".sheetLink").forEach(a => a.addEventListener("click", closeSheet));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && sheet.getAttribute("aria-hidden") === "false") closeSheet();
+    });
+
+    // ---- Smooth scroll button with gentle easing (manual for extra smoothness)
+    $("#scrollBtn")?.addEventListener("click", () => smoothScrollTo($("#what").offsetTop - 72, 900));
+
+    function smoothScrollTo(targetY, duration=800){
+      const startY = window.scrollY;
+      const diff = targetY - startY;
+      const start = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+      function step(now){
+        const p = Math.min(1, (now - start)/duration);
+        window.scrollTo(0, startY + diff*ease(p));
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // ---- Reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.classList.add("in");
+      });
+    }, { threshold: 0.12 });
+
+    $$(".reveal").forEach(el => io.observe(el));
+
+    // ---- Copy buttons
+    const copyText = async (text, btn) => {
+      try{
+        await navigator.clipboard.writeText(text);
+        if(btn){
+          const prev = btn.textContent;
+          btn.textContent = "복사됨 ✓";
+          setTimeout(()=> btn.textContent = prev, 1000);
+        }
+      }catch{
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        if(btn){
+          const prev = btn.textContent;
+          btn.textContent = "복사됨 ✓";
+          setTimeout(()=> btn.textContent = prev, 1000);
+        }
+      }
+    };
+
+    $("#copyBtn")?.addEventListener("click", () => copyText($("#codeBlock").innerText, $("#copyBtn")));
+    $("#copyPrompt")?.addEventListener("click", () => copyText($("#promptText").innerText, $("#copyPrompt")));
+
+    // ---- Demo loop simulator
+    const runBtn = $("#runLoop");
+    const status = $("#status");
+    const bar = $("#bar");
+    const log = $("#log");
+
+    const steps = [
+      { name: "Build small", msg: "작은 결과물을 만든다: UI 뼈대/기능 1개", p: 25 },
+      { name: "Test now", msg: "즉시 확인한다: 실행/미리보기/간단 테스트", p: 55 },
+      { name: "Refine", msg: "개선한다: 문장/레이아웃/동작을 한 번 더 매끈하게", p: 80 },
+      { name: "Share", msg: "공유한다: 1명에게 보여주고 피드백을 받는다", p: 100 },
+    ];
+
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    runBtn?.addEventListener("click", async () => {
+      runBtn.disabled = true;
+      runBtn.style.opacity = .75;
+      log.textContent = "";
+      bar.style.width = "0%";
+      status.textContent = "루프 시작";
+      await wait(250);
+
+      for (let i=0; i<steps.length; i++){
+        const s = steps[i];
+        status.textContent = s.name;
+        bar.style.width = s.p + "%";
+        log.textContent += `• ${s.msg}\n`;
+        await wait(650);
+      }
+
+      status.textContent = "완료 — 다음 루프!";
+      log.textContent += "\n→ 루프가 짧을수록 감각이 유지되고 속도가 붙습니다.";
+      runBtn.disabled = false;
+      runBtn.style.opacity = 1;
+    });
+
+    // ---- Prompt button: gently focus prompt area
+    $("#promptBtn")?.addEventListener("click", () => {
+      const y = $("#start").getBoundingClientRect().top + window.scrollY - 72;
+      smoothScrollTo(y, 800);
+      setTimeout(()=> copyText($("#promptText").innerText, $("#promptBtn")), 850);
+    });
+
+    // ---- Quick command palette (toy): Ctrl/⌘ + K scroll to demo
+    document.addEventListener("keydown", (e) => {
+      const isK = (e.key || "").toLowerCase() === "k";
+      if (isK && (e.ctrlKey || e.metaKey)){
+        e.preventDefault();
+        const y = $("#demo").getBoundingClientRect().top + window.scrollY - 72;
+        smoothScrollTo(y, 650);
+      }
+    });
+
+    // ---- Footer year
+    $("#year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
